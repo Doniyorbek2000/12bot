@@ -47,8 +47,12 @@ async def on_startup(bot: Bot):
 async def on_shutdown(bot: Bot):
     """Bot to'xtatilganda ulanishlarni yopish"""
     logger.info("Bot to'xtatilmoqda...")
-    # Close Redis connection
-    await redis_client.close()
+    # Close Redis connection if active
+    if redis_client:
+        try:
+            await redis_client.close()
+        except Exception as redis_close_err:
+            logger.warning(f"Redis ulanishini yopishda xatolik: {redis_close_err}")
     # Close DB Engine
     await engine.dispose()
     logger.info("Ulanishlar yopildi. Xayr!")

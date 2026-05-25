@@ -13,9 +13,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger("adolat_ai_bot")
 
-# Initialize Redis connection
-redis_client = Redis.from_url(settings.REDIS_URL, decode_responses=True)
-storage = RedisStorage(redis=redis_client)
+# Initialize Redis connection with MemoryStorage fallback
+try:
+    from aiogram.fsm.storage.memory import MemoryStorage
+    redis_client = Redis.from_url(settings.REDIS_URL, decode_responses=True)
+    storage = RedisStorage(redis=redis_client)
+    logger.info("Redis FSM Storage muvaffaqiyatli ulandi.")
+except Exception as e:
+    from aiogram.fsm.storage.memory import MemoryStorage
+    logger.warning(f"Redis-ga ulanib bo'lmadi ({e}). MemoryStorage (xotira FSM) faollashtirildi.")
+    redis_client = None
+    storage = MemoryStorage()
 
 # Initialize Bot with default HTML parse mode for premium rendering
 bot = Bot(
