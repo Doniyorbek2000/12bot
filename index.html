@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Oasis Restaurant - QR Menu</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash" class="splash">
+        <div class="splash-content">
+            <div class="splash-logo">
+                <span class="splash-icon">🍽️</span>
+            </div>
+            <h1 class="splash-title">Oasis</h1>
+            <p class="splash-subtitle">Restaurant & Lounge</p>
+            <div class="splash-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-bg"></div>
+        <div class="header-content">
+            <div class="restaurant-info">
+                <div class="logo-wrapper">
+                    <span class="logo-icon">🍽️</span>
+                </div>
+                <div class="info-text">
+                    <h1 class="restaurant-name">Oasis</h1>
+                    <p class="restaurant-tagline">Restaurant & Lounge</p>
+                </div>
+            </div>
+            <div class="header-details">
+                <div class="detail-item">
+                    <span class="detail-icon">📍</span>
+                    <span>Toshkent, Amir Temur ko'chasi 45</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">🕐</span>
+                    <span>10:00 - 23:00</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-icon">📞</span>
+                    <a href="tel:+998901234567">+998 90 123 45 67</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="search-container" id="searchContainer">
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Taom qidirish..." autocomplete="off">
+            <button class="search-clear" id="searchClear" aria-label="Tozalash">✕</button>
+        </div>
+    </div>
+
+    <!-- Category Navigation -->
+    <nav class="category-nav" id="categoryNav">
+        <div class="category-scroll">
+            <button class="category-btn active" data-category="all">
+                <span class="cat-icon">🍴</span>
+                <span class="cat-name">Barchasi</span>
+            </button>
+            <button class="category-btn" data-category="salads">
+                <span class="cat-icon">🥗</span>
+                <span class="cat-name">Salatlar</span>
+            </button>
+            <button class="category-btn" data-category="soups">
+                <span class="cat-icon">🍜</span>
+                <span class="cat-name">Sho'rvalar</span>
+            </button>
+            <button class="category-btn" data-category="hot">
+                <span class="cat-icon">🥘</span>
+                <span class="cat-name">Issiq taomlar</span>
+            </button>
+            <button class="category-btn" data-category="kebab">
+                <span class="cat-icon">🍢</span>
+                <span class="cat-name">Kaboblar</span>
+            </button>
+            <button class="category-btn" data-category="national">
+                <span class="cat-icon">🫕</span>
+                <span class="cat-name">Milliy</span>
+            </button>
+            <button class="category-btn" data-category="pizza">
+                <span class="cat-icon">🍕</span>
+                <span class="cat-name">Pizza</span>
+            </button>
+            <button class="category-btn" data-category="desserts">
+                <span class="cat-icon">🍰</span>
+                <span class="cat-name">Desertlar</span>
+            </button>
+            <button class="category-btn" data-category="drinks">
+                <span class="cat-icon">🥤</span>
+                <span class="cat-name">Ichimliklar</span>
+            </button>
+            <button class="category-btn" data-category="tea">
+                <span class="cat-icon">🍵</span>
+                <span class="cat-name">Choy & Qahva</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Menu Content -->
+    <main class="menu-content" id="menuContent">
+        <!-- Populated by JavaScript -->
+    </main>
+
+    <!-- Cart Button -->
+    <div class="cart-fab" id="cartFab" style="display:none;">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-count" id="cartCount">0</span>
+        <span class="cart-total" id="cartTotal">0 so'm</span>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-content cart-modal">
+            <div class="modal-header">
+                <h2>Buyurtma</h2>
+                <button class="modal-close" id="cartClose">✕</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <!-- Populated by JavaScript -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Jami:</span>
+                        <span class="total-price" id="totalPrice">0 so'm</span>
+                    </div>
+                </div>
+                <button class="order-btn" id="orderBtn">
+                    <span>📱</span> Buyurtma berish
+                </button>
+                <p class="order-note">Buyurtma Telegram orqali yuboriladi</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Detail Modal -->
+    <div class="modal-overlay" id="itemModal">
+        <div class="modal-content item-modal">
+            <button class="modal-close item-modal-close" id="itemClose">✕</button>
+            <div class="item-modal-img" id="itemModalImg"></div>
+            <div class="item-modal-body">
+                <div class="item-modal-badge" id="itemModalBadge"></div>
+                <h2 class="item-modal-name" id="itemModalName"></h2>
+                <p class="item-modal-desc" id="itemModalDesc"></p>
+                <div class="item-modal-details">
+                    <div class="detail-chip" id="itemModalWeight">
+                        <span>⚖️</span> <span id="itemWeightVal"></span>
+                    </div>
+                    <div class="detail-chip" id="itemModalTime">
+                        <span>⏱️</span> <span id="itemTimeVal"></span>
+                    </div>
+                    <div class="detail-chip" id="itemModalCalorie">
+                        <span>🔥</span> <span id="itemCalorieVal"></span>
+                    </div>
+                </div>
+                <div class="item-modal-footer">
+                    <div class="item-modal-price" id="itemModalPrice"></div>
+                    <div class="quantity-control">
+                        <button class="qty-btn" id="qtyMinus">−</button>
+                        <span class="qty-value" id="qtyValue">1</span>
+                        <button class="qty-btn" id="qtyPlus">+</button>
+                    </div>
+                </div>
+                <button class="add-to-cart-btn" id="addToCartBtn">
+                    Savatga qo'shish
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">🍽️</span>
+                <span class="footer-name">Oasis Restaurant</span>
+            </div>
+            <div class="footer-social">
+                <a href="#" class="social-link" aria-label="Instagram">📷</a>
+                <a href="#" class="social-link" aria-label="Telegram">✈️</a>
+                <a href="#" class="social-link" aria-label="Facebook">📘</a>
+            </div>
+            <p class="footer-copy">© 2026 Oasis Restaurant. Barcha huquqlar himoyalangan.</p>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Yuqoriga">↑</button>
+
+    <script src="js/menu-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
