@@ -1,10 +1,14 @@
 (function () {
     "use strict";
 
+    const FONT_SIZES = [12, 13, 14, 15, 16, 18, 20];
+    const DEFAULT_FONT_INDEX = 2;
+
     const state = {
         lang: localStorage.getItem("shirin_lang") || "uz",
         theme: localStorage.getItem("shirin_theme") || "dark",
         layout: localStorage.getItem("shirin_layout") || "grid-2",
+        fontIndex: parseInt(localStorage.getItem("shirin_font") || DEFAULT_FONT_INDEX),
         activeCategory: "all",
         searchQuery: ""
     };
@@ -23,10 +27,8 @@
     const itemModalImg = $("#itemModalImg");
     const itemModalBadge = $("#itemModalBadge");
     const itemModalName = $("#itemModalName");
-    const itemModalDesc = $("#itemModalDesc");
     const itemWeightVal = $("#itemWeightVal");
     const itemTimeVal = $("#itemTimeVal");
-    const itemCalorieVal = $("#itemCalorieVal");
     const itemModalPrice = $("#itemModalPrice");
     const orderBtn = $("#orderBtn");
     const orderBtnText = $("#orderBtnText");
@@ -45,15 +47,28 @@
         return item.name[state.lang] || item.name.uz;
     }
 
-    function getItemDesc(item) {
-        return item.desc[state.lang] || item.desc.uz;
-    }
-
     // ===== Splash =====
     setTimeout(() => {
         splash.classList.add("hide");
         setTimeout(() => splash.style.display = "none", 600);
     }, 1600);
+
+    // ===== Font Size =====
+    function applyFontSize() {
+        const size = FONT_SIZES[state.fontIndex];
+        document.body.style.setProperty("--font-size", size + "px");
+        localStorage.setItem("shirin_font", state.fontIndex);
+    }
+
+    function changeFontSize(dir) {
+        if (dir === "up" && state.fontIndex < FONT_SIZES.length - 1) {
+            state.fontIndex++;
+        } else if (dir === "down" && state.fontIndex > 0) {
+            state.fontIndex--;
+        }
+        applyFontSize();
+        renderMenu();
+    }
 
     // ===== Theme =====
     function applyTheme(theme) {
@@ -138,10 +153,7 @@
         }
         if (state.searchQuery) {
             const q = state.searchQuery.toLowerCase();
-            items = items.filter((i) =>
-                getItemName(i).toLowerCase().includes(q) ||
-                getItemDesc(i).toLowerCase().includes(q)
-            );
+            items = items.filter((i) => getItemName(i).toLowerCase().includes(q));
         }
         return items;
     }
@@ -172,6 +184,8 @@
 
     function renderMenu() {
         const items = getFilteredItems();
+        const fontSize = FONT_SIZES[state.fontIndex];
+
         if (items.length === 0) {
             menuContent.innerHTML = `<div class="no-results">
                 <div class="no-results-icon">🔍</div>
@@ -193,7 +207,7 @@
                     <h2 class="section-title">${cats[catId]}</h2>
                     <span class="section-count">${items.length}</span>
                 </div>
-                <div class="menu-grid ${layout}">${items.map((it, i) => renderCard(it, i, layout)).join("")}</div>
+                <div class="menu-grid ${layout}">${items.map((it, i) => renderCard(it, i, layout, fontSize)).join("")}</div>
             </div>`;
         } else {
             const groups = groupByCategory(items);
@@ -206,7 +220,7 @@
                         <h2 class="section-title">${cats[catId]}</h2>
                         <span class="section-count">${g.length}</span>
                     </div>
-                    <div class="menu-grid ${layout}">${g.map((it, i) => renderCard(it, i, layout)).join("")}</div>
+                    <div class="menu-grid ${layout}">${g.map((it, i) => renderCard(it, i, layout, fontSize)).join("")}</div>
                 </div>`;
             });
             menuContent.innerHTML = html;
@@ -219,27 +233,31 @@
         });
     }
 
-    function renderCard(item, index, layout) {
+    function renderCard(item, index, layout, fontSize) {
         const name = getItemName(item);
         const price = formatPrice(item.price);
         const delay = Math.min(index * 0.04, 0.6);
+        const nameSize = fontSize + "px";
+        const priceSize = fontSize + "px";
 
         if (layout === "grid-1") {
             return `<div class="menu-card card-list" data-id="${item.id}" style="animation-delay:${delay}s">
                 <div class="card-img-wrap">${getBadgeHTML(item.badge)}<div class="card-emoji">${item.emoji}</div></div>
                 <div class="card-body">
-                    <div class="card-name">${name}</div>
-                    <div class="card-desc-short">${getItemDesc(item)}</div>
+                    <div class="card-name" style="font-size:${nameSize}">${name}</div>
                 </div>
-                <div class="card-price">${price}</div>
+                <div class="card-price" style="font-size:${priceSize}">${price}</div>
             </div>`;
         }
+
+        const tileFontName = layout === "grid-3" ? Math.max(fontSize - 2, 10) + "px" : nameSize;
+        const tileFontPrice = layout === "grid-3" ? Math.max(fontSize - 2, 10) + "px" : priceSize;
 
         return `<div class="menu-card card-tile" data-id="${item.id}" style="animation-delay:${delay}s">
             ${getBadgeHTML(item.badge)}
             <div class="card-emoji-tile">${item.emoji}</div>
-            <div class="card-name">${name}</div>
-            <div class="card-price">${price}</div>
+            <div class="card-name" style="font-size:${tileFontName}">${name}</div>
+            <div class="card-price" style="font-size:${tileFontPrice}">${price}</div>
         </div>`;
     }
 
@@ -256,10 +274,8 @@
             itemModalBadge.style.display = "none";
         }
         itemModalName.textContent = getItemName(item);
-        itemModalDesc.textContent = getItemDesc(item);
         itemWeightVal.textContent = item.weight;
         itemTimeVal.textContent = item.time;
-        itemCalorieVal.textContent = item.calories;
         itemModalPrice.textContent = formatPrice(item.price);
 
         orderBtnText.textContent = t("orderBtn");
@@ -283,6 +299,7 @@
     $$(".lang-btn").forEach((btn) => btn.addEventListener("click", () => applyLang(btn.dataset.lang)));
     $$(".layout-btn").forEach((btn) => btn.addEventListener("click", () => applyLayout(btn.dataset.layout)));
     $$(".theme-btn").forEach((btn) => btn.addEventListener("click", () => applyTheme(btn.dataset.theme)));
+    $$(".font-btn").forEach((btn) => btn.addEventListener("click", () => changeFontSize(btn.dataset.font)));
 
     // ===== Scroll =====
     window.addEventListener("scroll", () => {
@@ -296,4 +313,5 @@
     applyTheme(state.theme);
     applyLayout(state.layout);
     applyLang(state.lang);
+    applyFontSize();
 })();

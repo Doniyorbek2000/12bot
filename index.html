@@ -61,6 +61,11 @@
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="3.5" height="6" rx="0.7"/><rect x="6.25" y="1" width="3.5" height="6" rx="0.7"/><rect x="11.5" y="1" width="3.5" height="6" rx="0.7"/><rect x="1" y="9" width="3.5" height="6" rx="0.7"/><rect x="6.25" y="9" width="3.5" height="6" rx="0.7"/><rect x="11.5" y="9" width="3.5" height="6" rx="0.7"/></svg>
                 </button>
             </div>
+            <!-- Font Size -->
+            <div class="toolbar-group">
+                <button class="tool-btn font-btn" data-font="down" aria-label="Kichik">A−</button>
+                <button class="tool-btn font-btn" data-font="up" aria-label="Katta">A+</button>
+            </div>
             <!-- Theme -->
             <div class="toolbar-group">
                 <button class="tool-btn theme-btn" data-theme="dark" aria-label="Qora tema">
@@ -106,11 +111,9 @@
             <div class="item-modal-body">
                 <div class="item-modal-badge" id="itemModalBadge"></div>
                 <h2 class="item-modal-name" id="itemModalName"></h2>
-                <p class="item-modal-desc" id="itemModalDesc"></p>
                 <div class="item-modal-details">
                     <div class="detail-chip"><span>⚖️</span> <span id="itemWeightVal"></span></div>
                     <div class="detail-chip"><span>⏱️</span> <span id="itemTimeVal"></span></div>
-                    <div class="detail-chip"><span>⚡</span> <span id="itemCalorieVal"></span></div>
                 </div>
                 <div class="item-modal-price" id="itemModalPrice"></div>
                 <a class="order-btn" id="orderBtn" href="#" target="_blank">

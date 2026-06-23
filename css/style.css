@@ -171,6 +171,9 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 }
 .tool-btn svg { width: 16px; height: 16px; }
 
+/* Font size buttons */
+.font-btn { font-weight: 700; font-size: 13px !important; letter-spacing: -0.5px; }
+
 /* Theme dots */
 .theme-dot {
     width: 18px; height: 18px; border-radius: 50%;
@@ -381,8 +384,7 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 }
 .item-modal-body { padding: 20px 20px 28px; }
 .item-modal-badge { margin-bottom: 8px; }
-.item-modal-name { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 8px; line-height: 1.2; }
-.item-modal-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+.item-modal-name { font-family: var(--font-display); font-size: 24px; font-weight: 600; margin-bottom: 12px; line-height: 1.2; }
 .item-modal-details { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .detail-chip {
     display: flex; align-items: center; gap: 5px; padding: 5px 11px;
