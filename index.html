@@ -22,9 +22,12 @@
         </div>
     </div>
 
-    <!-- Header -->
+    <!-- Header with cafe background -->
     <header class="header">
-        <div class="header-bg"></div>
+        <div class="header-bg">
+            <img src="images/cafe-bg.jpg" alt="" class="header-bg-img" id="headerBgImg">
+            <div class="header-overlay"></div>
+        </div>
         <div class="header-content">
             <div class="restaurant-info">
                 <div class="logo-wrapper"><span class="logo-icon">🍽️</span></div>
@@ -40,7 +43,7 @@
         </div>
     </header>
 
-    <!-- Toolbar: Language, Theme, Layout -->
+    <!-- Toolbar -->
     <div class="toolbar" id="toolbar">
         <div class="toolbar-inner">
             <!-- Language -->
@@ -66,20 +69,19 @@
                 <button class="tool-btn font-btn" data-font="down" aria-label="Kichik">A−</button>
                 <button class="tool-btn font-btn" data-font="up" aria-label="Katta">A+</button>
             </div>
-            <!-- Theme -->
-            <div class="toolbar-group">
-                <button class="tool-btn theme-btn" data-theme="dark" aria-label="Qora tema">
-                    <span class="theme-dot dark-dot active-dot"></span>
+            <!-- Theme Picker -->
+            <div class="toolbar-group theme-picker-wrap">
+                <button class="tool-btn theme-toggle" id="themeToggle" aria-label="Rang tanlash">
+                    <span class="theme-dot-current" id="themeDotCurrent"></span>
                 </button>
-                <button class="tool-btn theme-btn" data-theme="light" aria-label="Oq tema">
-                    <span class="theme-dot light-dot"></span>
-                </button>
-                <button class="tool-btn theme-btn" data-theme="gold" aria-label="Oltin tema">
-                    <span class="theme-dot gold-dot"></span>
-                </button>
-                <button class="tool-btn theme-btn" data-theme="green" aria-label="Yashil tema">
-                    <span class="theme-dot green-dot"></span>
-                </button>
+                <div class="theme-dropdown" id="themeDropdown">
+                    <button class="theme-option" data-theme="dark"><span class="theme-dot dark-dot"></span><span>Qora</span></button>
+                    <button class="theme-option" data-theme="light"><span class="theme-dot light-dot"></span><span>Oq</span></button>
+                    <button class="theme-option" data-theme="gold"><span class="theme-dot gold-dot"></span><span>Oltin</span></button>
+                    <button class="theme-option" data-theme="green"><span class="theme-dot green-dot"></span><span>Yashil</span></button>
+                    <button class="theme-option" data-theme="blue"><span class="theme-dot blue-dot"></span><span>Ko'k</span></button>
+                    <button class="theme-option" data-theme="rose"><span class="theme-dot rose-dot"></span><span>Pushti</span></button>
+                </div>
             </div>
         </div>
     </div>
@@ -95,9 +97,7 @@
 
     <!-- Category Nav -->
     <nav class="category-nav" id="categoryNav">
-        <div class="category-scroll" id="categoryScroll">
-            <!-- Filled by JS -->
-        </div>
+        <div class="category-scroll" id="categoryScroll"></div>
     </nav>
 
     <!-- Menu Content -->

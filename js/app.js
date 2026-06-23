@@ -34,6 +34,10 @@
     const orderBtnText = $("#orderBtnText");
     const backToTop = $("#backToTop");
     const footerCopy = $("#footerCopy");
+    const themeToggle = $("#themeToggle");
+    const themeDropdown = $("#themeDropdown");
+    const themeDotCurrent = $("#themeDotCurrent");
+    const headerBgImg = $("#headerBgImg");
 
     function t(key) {
         return TRANSLATIONS[state.lang][key] || key;
@@ -53,10 +57,18 @@
         setTimeout(() => splash.style.display = "none", 600);
     }, 1600);
 
+    // ===== Header background image =====
+    function initHeaderBg() {
+        headerBgImg.addEventListener("load", () => {
+            headerBgImg.classList.add("loaded");
+        });
+        headerBgImg.addEventListener("error", () => {
+            headerBgImg.style.display = "none";
+        });
+    }
+
     // ===== Font Size =====
     function applyFontSize() {
-        const size = FONT_SIZES[state.fontIndex];
-        document.body.style.setProperty("--font-size", size + "px");
         localStorage.setItem("shirin_font", state.fontIndex);
     }
 
@@ -71,14 +83,50 @@
     }
 
     // ===== Theme =====
+    const themeColors = {
+        dark: "#D4A574", light: "#C49A6C", gold: "#FFD700",
+        green: "#4CAF50", blue: "#42A5F5", rose: "#F06292"
+    };
+
     function applyTheme(theme) {
         state.theme = theme;
         document.body.setAttribute("data-theme", theme);
         localStorage.setItem("shirin_theme", theme);
-        $$(".theme-dot").forEach((d) => d.classList.remove("active-dot"));
-        const activeBtn = $(`.theme-btn[data-theme="${theme}"] .theme-dot`);
-        if (activeBtn) activeBtn.classList.add("active-dot");
+        themeDotCurrent.style.background = themeColors[theme] || themeColors.dark;
+        themeDotCurrent.style.boxShadow = `0 0 6px ${themeColors[theme] || themeColors.dark}`;
+
+        $$(".theme-option").forEach((o) => {
+            o.classList.toggle("active", o.dataset.theme === theme);
+        });
+
+        closeThemeDropdown();
     }
+
+    function toggleThemeDropdown() {
+        themeDropdown.classList.toggle("open");
+    }
+
+    function closeThemeDropdown() {
+        themeDropdown.classList.remove("open");
+    }
+
+    themeToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleThemeDropdown();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".theme-picker-wrap")) {
+            closeThemeDropdown();
+        }
+    });
+
+    $$(".theme-option").forEach((opt) => {
+        opt.addEventListener("click", (e) => {
+            e.stopPropagation();
+            applyTheme(opt.dataset.theme);
+        });
+    });
 
     // ===== Layout =====
     function applyLayout(layout) {
@@ -298,7 +346,6 @@
     // ===== Toolbar Events =====
     $$(".lang-btn").forEach((btn) => btn.addEventListener("click", () => applyLang(btn.dataset.lang)));
     $$(".layout-btn").forEach((btn) => btn.addEventListener("click", () => applyLayout(btn.dataset.layout)));
-    $$(".theme-btn").forEach((btn) => btn.addEventListener("click", () => applyTheme(btn.dataset.theme)));
     $$(".font-btn").forEach((btn) => btn.addEventListener("click", () => changeFontSize(btn.dataset.font)));
 
     // ===== Scroll =====
@@ -310,6 +357,7 @@
     backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
     // ===== Init =====
+    initHeaderBg();
     applyTheme(state.theme);
     applyLayout(state.layout);
     applyLang(state.lang);
