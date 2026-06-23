@@ -1,33 +1,23 @@
 (function () {
     "use strict";
 
-    // ===== State =====
     const state = {
-        cart: [],
+        lang: localStorage.getItem("shirin_lang") || "uz",
+        theme: localStorage.getItem("shirin_theme") || "dark",
+        layout: localStorage.getItem("shirin_layout") || "grid-2",
         activeCategory: "all",
-        searchQuery: "",
-        currentItem: null,
-        currentQty: 1
+        searchQuery: ""
     };
 
-    // ===== DOM Elements =====
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => document.querySelectorAll(sel);
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => document.querySelectorAll(s);
 
     const splash = $("#splash");
     const searchInput = $("#searchInput");
     const searchClear = $("#searchClear");
     const searchContainer = $("#searchContainer");
-    const categoryNav = $("#categoryNav");
+    const categoryScroll = $("#categoryScroll");
     const menuContent = $("#menuContent");
-    const cartFab = $("#cartFab");
-    const cartCount = $("#cartCount");
-    const cartTotal = $("#cartTotal");
-    const cartModal = $("#cartModal");
-    const cartClose = $("#cartClose");
-    const cartItems = $("#cartItems");
-    const totalPrice = $("#totalPrice");
-    const orderBtn = $("#orderBtn");
     const itemModal = $("#itemModal");
     const itemClose = $("#itemClose");
     const itemModalImg = $("#itemModalImg");
@@ -38,386 +28,243 @@
     const itemTimeVal = $("#itemTimeVal");
     const itemCalorieVal = $("#itemCalorieVal");
     const itemModalPrice = $("#itemModalPrice");
-    const qtyMinus = $("#qtyMinus");
-    const qtyPlus = $("#qtyPlus");
-    const qtyValue = $("#qtyValue");
-    const addToCartBtn = $("#addToCartBtn");
+    const orderBtn = $("#orderBtn");
+    const orderBtnText = $("#orderBtnText");
     const backToTop = $("#backToTop");
+    const footerCopy = $("#footerCopy");
 
-    // ===== Helpers =====
-    function formatPrice(price) {
-        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
+    function t(key) {
+        return TRANSLATIONS[state.lang][key] || key;
     }
 
-    function showToast(message, icon) {
-        const existing = document.querySelector(".toast");
-        if (existing) existing.remove();
+    function formatPrice(p) {
+        return p.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm";
+    }
 
-        const toast = document.createElement("div");
-        toast.className = "toast";
-        toast.innerHTML = `<span>${icon || "✅"}</span> ${message}`;
-        document.body.appendChild(toast);
+    function getItemName(item) {
+        return item.name[state.lang] || item.name.uz;
+    }
 
-        requestAnimationFrame(() => {
-            toast.classList.add("show");
+    function getItemDesc(item) {
+        return item.desc[state.lang] || item.desc.uz;
+    }
+
+    // ===== Splash =====
+    setTimeout(() => {
+        splash.classList.add("hide");
+        setTimeout(() => splash.style.display = "none", 600);
+    }, 1600);
+
+    // ===== Theme =====
+    function applyTheme(theme) {
+        state.theme = theme;
+        document.body.setAttribute("data-theme", theme);
+        localStorage.setItem("shirin_theme", theme);
+        $$(".theme-dot").forEach((d) => d.classList.remove("active-dot"));
+        const activeBtn = $(`.theme-btn[data-theme="${theme}"] .theme-dot`);
+        if (activeBtn) activeBtn.classList.add("active-dot");
+    }
+
+    // ===== Layout =====
+    function applyLayout(layout) {
+        state.layout = layout;
+        document.body.setAttribute("data-layout", layout);
+        localStorage.setItem("shirin_layout", layout);
+        $$(".layout-btn").forEach((b) => b.classList.remove("active"));
+        const btn = $(`.layout-btn[data-layout="${layout}"]`);
+        if (btn) btn.classList.add("active");
+        renderMenu();
+    }
+
+    // ===== Language =====
+    function applyLang(lang) {
+        state.lang = lang;
+        localStorage.setItem("shirin_lang", lang);
+        $$(".lang-btn").forEach((b) => b.classList.remove("active"));
+        const btn = $(`.lang-btn[data-lang="${lang}"]`);
+        if (btn) btn.classList.add("active");
+
+        searchInput.placeholder = t("searchPlaceholder");
+        footerCopy.textContent = t("footerCopy");
+
+        renderCategories();
+        renderMenu();
+    }
+
+    // ===== Categories =====
+    function renderCategories() {
+        const cats = TRANSLATIONS[state.lang].categories;
+        const icons = TRANSLATIONS[state.lang].catIcons;
+        let html = `<button class="category-btn ${state.activeCategory === "all" ? "active" : ""}" data-category="all">
+            <span class="cat-icon">🍴</span><span class="cat-name">${t("allCategories")}</span>
+        </button>`;
+        Object.keys(cats).forEach((id) => {
+            html += `<button class="category-btn ${state.activeCategory === id ? "active" : ""}" data-category="${id}">
+                <span class="cat-icon">${icons[id]}</span><span class="cat-name">${cats[id]}</span>
+            </button>`;
         });
+        categoryScroll.innerHTML = html;
 
-        setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 400);
-        }, 2000);
-    }
-
-    // ===== Splash Screen =====
-    function hideSplash() {
-        setTimeout(() => {
-            splash.classList.add("hide");
-            setTimeout(() => {
-                splash.style.display = "none";
-            }, 600);
-        }, 1800);
-    }
-
-    // ===== Render Menu =====
-    function getFilteredItems() {
-        let items = MENU_DATA.items;
-
-        if (state.activeCategory !== "all") {
-            items = items.filter((i) => i.category === state.activeCategory);
-        }
-
-        if (state.searchQuery) {
-            const q = state.searchQuery.toLowerCase();
-            items = items.filter(
-                (i) =>
-                    i.name.toLowerCase().includes(q) ||
-                    i.desc.toLowerCase().includes(q)
-            );
-        }
-
-        return items;
-    }
-
-    function groupByCategory(items) {
-        const groups = {};
-        const categoryOrder = MENU_DATA.categories.map((c) => c.id);
-
-        items.forEach((item) => {
-            if (!groups[item.category]) {
-                groups[item.category] = [];
-            }
-            groups[item.category].push(item);
-        });
-
-        const sorted = {};
-        categoryOrder.forEach((catId) => {
-            if (groups[catId]) {
-                sorted[catId] = groups[catId];
-            }
-        });
-
-        return sorted;
-    }
-
-    function getBadgeHTML(badge) {
-        if (!badge) return "";
-        const classes = {
-            new: "badge-new",
-            hit: "badge-hit",
-            spicy: "badge-spicy"
-        };
-        const labels = {
-            new: "Yangi",
-            hit: "Hit",
-            spicy: "Achchiq"
-        };
-        return `<span class="card-badge ${classes[badge]}">${labels[badge]}</span>`;
-    }
-
-    function renderMenu() {
-        const items = getFilteredItems();
-
-        if (items.length === 0) {
-            menuContent.innerHTML = `
-                <div class="no-results">
-                    <div class="no-results-icon">🔍</div>
-                    <h3>Hech narsa topilmadi</h3>
-                    <p>Boshqa so'z bilan qidirib ko'ring</p>
-                </div>
-            `;
-            return;
-        }
-
-        if (state.activeCategory !== "all") {
-            const cat = MENU_DATA.categories.find(
-                (c) => c.id === state.activeCategory
-            );
-            menuContent.innerHTML = `
-                <div class="menu-section" data-category="${cat.id}">
-                    <div class="section-header">
-                        <span class="section-icon">${cat.icon}</span>
-                        <h2 class="section-title">${cat.name}</h2>
-                        <span class="section-count">${items.length} ta</span>
-                    </div>
-                    ${items.map((item, i) => renderCard(item, i)).join("")}
-                </div>
-            `;
-        } else {
-            const groups = groupByCategory(items);
-            let html = "";
-
-            Object.keys(groups).forEach((catId) => {
-                const cat = MENU_DATA.categories.find((c) => c.id === catId);
-                const catItems = groups[catId];
-                html += `
-                    <div class="menu-section" data-category="${catId}">
-                        <div class="section-header">
-                            <span class="section-icon">${cat.icon}</span>
-                            <h2 class="section-title">${cat.name}</h2>
-                            <span class="section-count">${catItems.length} ta</span>
-                        </div>
-                        ${catItems.map((item, i) => renderCard(item, i)).join("")}
-                    </div>
-                `;
-            });
-
-            menuContent.innerHTML = html;
-        }
-
-        attachCardListeners();
-    }
-
-    function renderCard(item, index) {
-        const cartItem = state.cart.find((c) => c.id === item.id);
-        const inCart = cartItem ? cartItem.qty : 0;
-
-        return `
-            <div class="menu-card" data-id="${item.id}" style="animation-delay: ${index * 0.05}s">
-                <div class="card-img" data-id="${item.id}">
-                    ${getBadgeHTML(item.badge)}
-                    <div class="card-img-placeholder">${item.emoji}</div>
-                </div>
-                <div class="card-body">
-                    <div>
-                        <div class="card-name">${item.name}</div>
-                        <div class="card-desc">${item.desc}</div>
-                        <div class="card-meta">
-                            <span class="card-weight">${item.weight}</span>
-                        </div>
-                    </div>
-                    <div class="card-bottom">
-                        <div>
-                            <span class="card-price">${formatPrice(item.price)}</span>
-                        </div>
-                        <button class="card-add-btn" data-id="${item.id}" aria-label="Qo'shish">
-                            ${inCart > 0 ? inCart : "+"}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function attachCardListeners() {
-        $$(".menu-card").forEach((card) => {
-            card.addEventListener("click", (e) => {
-                if (e.target.closest(".card-add-btn")) return;
-                const id = parseInt(card.dataset.id);
-                openItemModal(id);
-            });
-        });
-
-        $$(".card-add-btn").forEach((btn) => {
-            btn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
-                addToCart(id, 1);
-                showToast("Savatga qo'shildi", "🛒");
-            });
-        });
-    }
-
-    // ===== Category Navigation =====
-    function initCategories() {
         $$(".category-btn").forEach((btn) => {
             btn.addEventListener("click", () => {
                 $$(".category-btn").forEach((b) => b.classList.remove("active"));
                 btn.classList.add("active");
                 state.activeCategory = btn.dataset.category;
                 renderMenu();
-
-                btn.scrollIntoView({
-                    behavior: "smooth",
-                    block: "nearest",
-                    inline: "center"
-                });
+                btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
             });
         });
     }
 
     // ===== Search =====
-    function initSearch() {
-        searchInput.addEventListener("input", () => {
-            state.searchQuery = searchInput.value.trim();
-            searchClear.classList.toggle("visible", state.searchQuery.length > 0);
-            renderMenu();
-        });
+    searchInput.addEventListener("input", () => {
+        state.searchQuery = searchInput.value.trim();
+        searchClear.classList.toggle("visible", state.searchQuery.length > 0);
+        renderMenu();
+    });
+    searchClear.addEventListener("click", () => {
+        searchInput.value = "";
+        state.searchQuery = "";
+        searchClear.classList.remove("visible");
+        renderMenu();
+        searchInput.focus();
+    });
 
-        searchClear.addEventListener("click", () => {
-            searchInput.value = "";
-            state.searchQuery = "";
-            searchClear.classList.remove("visible");
-            renderMenu();
-            searchInput.focus();
-        });
+    // ===== Render Menu =====
+    function getFilteredItems() {
+        let items = MENU_DATA;
+        if (state.activeCategory !== "all") {
+            items = items.filter((i) => i.category === state.activeCategory);
+        }
+        if (state.searchQuery) {
+            const q = state.searchQuery.toLowerCase();
+            items = items.filter((i) =>
+                getItemName(i).toLowerCase().includes(q) ||
+                getItemDesc(i).toLowerCase().includes(q)
+            );
+        }
+        return items;
     }
 
-    // ===== Cart =====
-    function addToCart(id, qty) {
-        const item = MENU_DATA.items.find((i) => i.id === id);
-        if (!item) return;
+    function groupByCategory(items) {
+        const order = ["salads", "soups", "main", "kebab", "extras", "drinks"];
+        const groups = {};
+        items.forEach((item) => {
+            if (!groups[item.category]) groups[item.category] = [];
+            groups[item.category].push(item);
+        });
+        const sorted = {};
+        order.forEach((id) => { if (groups[id]) sorted[id] = groups[id]; });
+        return sorted;
+    }
 
-        const existing = state.cart.find((c) => c.id === id);
-        if (existing) {
-            existing.qty += qty;
+    function getBadgeHTML(badge) {
+        if (!badge) return "";
+        const labels = {
+            uz: { new: "Yangi", hit: "Hit", spicy: "Achchiq" },
+            krill: { new: "Янги", hit: "Хит", spicy: "Аччиқ" },
+            ru: { new: "Новинка", hit: "Хит", spicy: "Острое" }
+        };
+        const cls = { new: "badge-new", hit: "badge-hit", spicy: "badge-spicy" };
+        const label = (labels[state.lang] || labels.uz)[badge] || badge;
+        return `<span class="card-badge ${cls[badge]}">${label}</span>`;
+    }
+
+    function renderMenu() {
+        const items = getFilteredItems();
+        if (items.length === 0) {
+            menuContent.innerHTML = `<div class="no-results">
+                <div class="no-results-icon">🔍</div>
+                <h3>${t("noResults")}</h3>
+                <p>${t("noResultsHint")}</p>
+            </div>`;
+            return;
+        }
+
+        const layout = state.layout;
+        const cats = TRANSLATIONS[state.lang].categories;
+        const icons = TRANSLATIONS[state.lang].catIcons;
+
+        if (state.activeCategory !== "all") {
+            const catId = state.activeCategory;
+            menuContent.innerHTML = `<div class="menu-section">
+                <div class="section-header">
+                    <span class="section-icon">${icons[catId]}</span>
+                    <h2 class="section-title">${cats[catId]}</h2>
+                    <span class="section-count">${items.length}</span>
+                </div>
+                <div class="menu-grid ${layout}">${items.map((it, i) => renderCard(it, i, layout)).join("")}</div>
+            </div>`;
         } else {
-            state.cart.push({ id, qty, item });
+            const groups = groupByCategory(items);
+            let html = "";
+            Object.keys(groups).forEach((catId) => {
+                const g = groups[catId];
+                html += `<div class="menu-section">
+                    <div class="section-header">
+                        <span class="section-icon">${icons[catId]}</span>
+                        <h2 class="section-title">${cats[catId]}</h2>
+                        <span class="section-count">${g.length}</span>
+                    </div>
+                    <div class="menu-grid ${layout}">${g.map((it, i) => renderCard(it, i, layout)).join("")}</div>
+                </div>`;
+            });
+            menuContent.innerHTML = html;
         }
 
-        updateCartUI();
-        renderMenu();
-    }
-
-    function removeFromCart(id) {
-        state.cart = state.cart.filter((c) => c.id !== id);
-        updateCartUI();
-        renderMenu();
-    }
-
-    function updateCartQty(id, delta) {
-        const cartItem = state.cart.find((c) => c.id === id);
-        if (!cartItem) return;
-
-        cartItem.qty += delta;
-        if (cartItem.qty <= 0) {
-            removeFromCart(id);
-            return;
-        }
-
-        updateCartUI();
-    }
-
-    function getCartTotal() {
-        return state.cart.reduce((sum, c) => sum + c.item.price * c.qty, 0);
-    }
-
-    function getCartCount() {
-        return state.cart.reduce((sum, c) => sum + c.qty, 0);
-    }
-
-    function updateCartUI() {
-        const count = getCartCount();
-        const total = getCartTotal();
-
-        cartFab.style.display = count > 0 ? "flex" : "none";
-        cartCount.textContent = count;
-        cartTotal.textContent = formatPrice(total);
-        totalPrice.textContent = formatPrice(total);
-
-        renderCartItems();
-    }
-
-    function renderCartItems() {
-        if (state.cart.length === 0) {
-            cartItems.innerHTML = `
-                <div class="cart-empty">
-                    <div class="cart-empty-icon">🛒</div>
-                    <p>Savat bo'sh</p>
-                </div>
-            `;
-            return;
-        }
-
-        cartItems.innerHTML = state.cart
-            .map(
-                (c) => `
-            <div class="cart-item" data-id="${c.id}">
-                <div class="cart-item-img">
-                    <div class="card-img-placeholder">${c.item.emoji}</div>
-                </div>
-                <div class="cart-item-info">
-                    <div class="cart-item-name">${c.item.name}</div>
-                    <div class="cart-item-price">${formatPrice(c.item.price * c.qty)}</div>
-                </div>
-                <div class="cart-item-controls">
-                    <button class="cart-qty-btn ${c.qty === 1 ? "delete" : ""}" data-action="minus" data-id="${c.id}">
-                        ${c.qty === 1 ? "🗑" : "−"}
-                    </button>
-                    <span class="cart-item-qty">${c.qty}</span>
-                    <button class="cart-qty-btn" data-action="plus" data-id="${c.id}">+</button>
-                </div>
-            </div>
-        `
-            )
-            .join("");
-
-        cartItems.querySelectorAll(".cart-qty-btn").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                const id = parseInt(btn.dataset.id);
-                const action = btn.dataset.action;
-                if (action === "plus") {
-                    updateCartQty(id, 1);
-                } else {
-                    updateCartQty(id, -1);
-                }
+        $$(".menu-card").forEach((card) => {
+            card.addEventListener("click", () => {
+                openItemModal(parseInt(card.dataset.id));
             });
         });
     }
 
-    // ===== Cart Modal =====
-    function openCartModal() {
-        renderCartItems();
-        cartModal.classList.add("active");
-        document.body.style.overflow = "hidden";
+    function renderCard(item, index, layout) {
+        const name = getItemName(item);
+        const price = formatPrice(item.price);
+        const delay = Math.min(index * 0.04, 0.6);
+
+        if (layout === "grid-1") {
+            return `<div class="menu-card card-list" data-id="${item.id}" style="animation-delay:${delay}s">
+                <div class="card-img-wrap">${getBadgeHTML(item.badge)}<div class="card-emoji">${item.emoji}</div></div>
+                <div class="card-body">
+                    <div class="card-name">${name}</div>
+                    <div class="card-desc-short">${getItemDesc(item)}</div>
+                </div>
+                <div class="card-price">${price}</div>
+            </div>`;
+        }
+
+        return `<div class="menu-card card-tile" data-id="${item.id}" style="animation-delay:${delay}s">
+            ${getBadgeHTML(item.badge)}
+            <div class="card-emoji-tile">${item.emoji}</div>
+            <div class="card-name">${name}</div>
+            <div class="card-price">${price}</div>
+        </div>`;
     }
 
-    function closeCartModal() {
-        cartModal.classList.remove("active");
-        document.body.style.overflow = "";
-    }
-
-    // ===== Item Detail Modal =====
+    // ===== Item Modal =====
     function openItemModal(id) {
-        const item = MENU_DATA.items.find((i) => i.id === id);
+        const item = MENU_DATA.find((i) => i.id === id);
         if (!item) return;
 
-        state.currentItem = item;
-        state.currentQty = 1;
-
         itemModalImg.innerHTML = `<span style="font-size:80px">${item.emoji}</span>`;
-
         if (item.badge) {
-            const labels = { new: "Yangi", hit: "Hit", spicy: "Achchiq" };
-            const classes = {
-                new: "badge-new",
-                hit: "badge-hit",
-                spicy: "badge-spicy"
-            };
-            itemModalBadge.innerHTML = `<span class="${classes[item.badge]}">${labels[item.badge]}</span>`;
+            itemModalBadge.innerHTML = getBadgeHTML(item.badge);
             itemModalBadge.style.display = "";
         } else {
             itemModalBadge.style.display = "none";
         }
-
-        itemModalName.textContent = item.name;
-        itemModalDesc.textContent = item.desc;
+        itemModalName.textContent = getItemName(item);
+        itemModalDesc.textContent = getItemDesc(item);
         itemWeightVal.textContent = item.weight;
         itemTimeVal.textContent = item.time;
         itemCalorieVal.textContent = item.calories;
         itemModalPrice.textContent = formatPrice(item.price);
-        qtyValue.textContent = "1";
 
-        updateAddBtnText();
+        orderBtnText.textContent = t("orderBtn");
+        const msg = encodeURIComponent(`🍽 ${getItemName(item)} — ${formatPrice(item.price)}\n\nShirin Kafe`);
+        orderBtn.href = `https://t.me/share/url?url=&text=${msg}`;
 
         itemModal.classList.add("active");
         document.body.style.overflow = "hidden";
@@ -426,135 +273,27 @@
     function closeItemModal() {
         itemModal.classList.remove("active");
         document.body.style.overflow = "";
-        state.currentItem = null;
     }
 
-    function updateAddBtnText() {
-        if (!state.currentItem) return;
-        const total = state.currentItem.price * state.currentQty;
-        addToCartBtn.textContent = `Savatga qo'shish — ${formatPrice(total)}`;
-    }
+    itemClose.addEventListener("click", closeItemModal);
+    itemModal.addEventListener("click", (e) => { if (e.target === itemModal) closeItemModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeItemModal(); });
 
-    // ===== Order via Telegram =====
-    function sendOrder() {
-        if (state.cart.length === 0) return;
+    // ===== Toolbar Events =====
+    $$(".lang-btn").forEach((btn) => btn.addEventListener("click", () => applyLang(btn.dataset.lang)));
+    $$(".layout-btn").forEach((btn) => btn.addEventListener("click", () => applyLayout(btn.dataset.layout)));
+    $$(".theme-btn").forEach((btn) => btn.addEventListener("click", () => applyTheme(btn.dataset.theme)));
 
-        let message = "🍽 *Yangi buyurtma - Shirin Kafe*\n\n";
+    // ===== Scroll =====
+    window.addEventListener("scroll", () => {
+        searchContainer.classList.toggle("scrolled", window.scrollY > 100);
+        backToTop.classList.toggle("visible", window.scrollY > 500);
+    }, { passive: true });
 
-        state.cart.forEach((c, i) => {
-            message += `${i + 1}. ${c.item.emoji} ${c.item.name} x${c.qty} — ${formatPrice(c.item.price * c.qty)}\n`;
-        });
+    backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-        message += `\n💰 *Jami: ${formatPrice(getCartTotal())}*`;
-
-        const encoded = encodeURIComponent(message);
-        window.open(`https://t.me/share/url?url=&text=${encoded}`, "_blank");
-
-        showToast("Buyurtma yuborilmoqda...", "📱");
-        closeCartModal();
-    }
-
-    // ===== Scroll Effects =====
-    function initScrollEffects() {
-        let lastScroll = 0;
-
-        window.addEventListener(
-            "scroll",
-            () => {
-                const scrollY = window.scrollY;
-
-                if (scrollY > 100) {
-                    searchContainer.classList.add("scrolled");
-                } else {
-                    searchContainer.classList.remove("scrolled");
-                }
-
-                if (scrollY > 500) {
-                    backToTop.classList.add("visible");
-                } else {
-                    backToTop.classList.remove("visible");
-                }
-
-                lastScroll = scrollY;
-            },
-            { passive: true }
-        );
-
-        backToTop.addEventListener("click", () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-    }
-
-    // ===== Event Listeners =====
-    function initEvents() {
-        // Cart FAB
-        cartFab.addEventListener("click", openCartModal);
-        cartClose.addEventListener("click", closeCartModal);
-        cartModal.addEventListener("click", (e) => {
-            if (e.target === cartModal) closeCartModal();
-        });
-
-        // Item Modal
-        itemClose.addEventListener("click", closeItemModal);
-        itemModal.addEventListener("click", (e) => {
-            if (e.target === itemModal) closeItemModal();
-        });
-
-        // Quantity controls
-        qtyMinus.addEventListener("click", () => {
-            if (state.currentQty > 1) {
-                state.currentQty--;
-                qtyValue.textContent = state.currentQty;
-                updateAddBtnText();
-            }
-        });
-
-        qtyPlus.addEventListener("click", () => {
-            if (state.currentQty < 20) {
-                state.currentQty++;
-                qtyValue.textContent = state.currentQty;
-                updateAddBtnText();
-            }
-        });
-
-        // Add to cart from modal
-        addToCartBtn.addEventListener("click", () => {
-            if (state.currentItem) {
-                addToCart(state.currentItem.id, state.currentQty);
-                showToast(
-                    `${state.currentItem.name} — ${state.currentQty} ta qo'shildi`,
-                    "🛒"
-                );
-                closeItemModal();
-            }
-        });
-
-        // Order button
-        orderBtn.addEventListener("click", sendOrder);
-
-        // Prevent body scroll on modal
-        document.addEventListener("keydown", (e) => {
-            if (e.key === "Escape") {
-                if (itemModal.classList.contains("active")) closeItemModal();
-                else if (cartModal.classList.contains("active")) closeCartModal();
-            }
-        });
-    }
-
-    // ===== Initialize =====
-    function init() {
-        hideSplash();
-        initCategories();
-        initSearch();
-        initScrollEffects();
-        initEvents();
-        renderMenu();
-        updateCartUI();
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
-    } else {
-        init();
-    }
+    // ===== Init =====
+    applyTheme(state.theme);
+    applyLayout(state.layout);
+    applyLang(state.lang);
 })();

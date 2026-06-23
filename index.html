@@ -3,176 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Shirin Kafe - QR Menu</title>
+    <title>Shirin Kafe - Menu</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
 </head>
-<body>
+<body data-theme="dark" data-layout="grid-2">
+
     <!-- Splash Screen -->
     <div id="splash" class="splash">
         <div class="splash-content">
-            <div class="splash-logo">
-                <span class="splash-icon">🍽️</span>
-            </div>
+            <div class="splash-logo"><span class="splash-icon">🍽️</span></div>
             <h1 class="splash-title">Shirin</h1>
             <p class="splash-subtitle">Kafe & Taomxona</p>
-            <div class="splash-loader">
-                <div class="loader-bar"></div>
-            </div>
+            <div class="splash-loader"><div class="loader-bar"></div></div>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="header" id="header">
+    <header class="header">
         <div class="header-bg"></div>
         <div class="header-content">
             <div class="restaurant-info">
-                <div class="logo-wrapper">
-                    <span class="logo-icon">🍽️</span>
-                </div>
+                <div class="logo-wrapper"><span class="logo-icon">🍽️</span></div>
                 <div class="info-text">
                     <h1 class="restaurant-name">Shirin</h1>
                     <p class="restaurant-tagline">Kafe & Taomxona</p>
                 </div>
             </div>
             <div class="header-details">
-                <div class="detail-item">
-                    <span class="detail-icon">📍</span>
-                    <span>Manzil ko'rsatilmagan</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-icon">🕐</span>
-                    <span>08:00 - 22:00</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-icon">📞</span>
-                    <a href="tel:+998901234567">+998 90 123 45 67</a>
-                </div>
+                <div class="detail-item"><span class="detail-icon">🕐</span><span>08:00 - 22:00</span></div>
+                <div class="detail-item"><span class="detail-icon">📞</span><a href="tel:+998901234567">+998 90 123 45 67</a></div>
             </div>
         </div>
     </header>
 
-    <!-- Search Bar -->
+    <!-- Toolbar: Language, Theme, Layout -->
+    <div class="toolbar" id="toolbar">
+        <div class="toolbar-inner">
+            <!-- Language -->
+            <div class="toolbar-group">
+                <button class="tool-btn lang-btn active" data-lang="uz">UZ</button>
+                <button class="tool-btn lang-btn" data-lang="krill">УЗ</button>
+                <button class="tool-btn lang-btn" data-lang="ru">RU</button>
+            </div>
+            <!-- Layout -->
+            <div class="toolbar-group">
+                <button class="tool-btn layout-btn" data-layout="grid-1" aria-label="1 ustun">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="14" height="3" rx="1"/><rect x="1" y="6" width="14" height="3" rx="1"/><rect x="1" y="11" width="14" height="3" rx="1"/></svg>
+                </button>
+                <button class="tool-btn layout-btn active" data-layout="grid-2" aria-label="2 ustun">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+                </button>
+                <button class="tool-btn layout-btn" data-layout="grid-3" aria-label="3 ustun">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="3.5" height="6" rx="0.7"/><rect x="6.25" y="1" width="3.5" height="6" rx="0.7"/><rect x="11.5" y="1" width="3.5" height="6" rx="0.7"/><rect x="1" y="9" width="3.5" height="6" rx="0.7"/><rect x="6.25" y="9" width="3.5" height="6" rx="0.7"/><rect x="11.5" y="9" width="3.5" height="6" rx="0.7"/></svg>
+                </button>
+            </div>
+            <!-- Theme -->
+            <div class="toolbar-group">
+                <button class="tool-btn theme-btn" data-theme="dark" aria-label="Qora tema">
+                    <span class="theme-dot dark-dot active-dot"></span>
+                </button>
+                <button class="tool-btn theme-btn" data-theme="light" aria-label="Oq tema">
+                    <span class="theme-dot light-dot"></span>
+                </button>
+                <button class="tool-btn theme-btn" data-theme="gold" aria-label="Oltin tema">
+                    <span class="theme-dot gold-dot"></span>
+                </button>
+                <button class="tool-btn theme-btn" data-theme="green" aria-label="Yashil tema">
+                    <span class="theme-dot green-dot"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search -->
     <div class="search-container" id="searchContainer">
         <div class="search-wrapper">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="Taom qidirish..." autocomplete="off">
-            <button class="search-clear" id="searchClear" aria-label="Tozalash">✕</button>
+            <button class="search-clear" id="searchClear">✕</button>
         </div>
     </div>
 
-    <!-- Category Navigation -->
+    <!-- Category Nav -->
     <nav class="category-nav" id="categoryNav">
-        <div class="category-scroll">
-            <button class="category-btn active" data-category="all">
-                <span class="cat-icon">🍴</span>
-                <span class="cat-name">Barchasi</span>
-            </button>
-            <button class="category-btn" data-category="salads">
-                <span class="cat-icon">🥗</span>
-                <span class="cat-name">Salatlar</span>
-            </button>
-            <button class="category-btn" data-category="soups">
-                <span class="cat-icon">🍜</span>
-                <span class="cat-name">Sho'rvalar</span>
-            </button>
-            <button class="category-btn" data-category="main">
-                <span class="cat-icon">🥘</span>
-                <span class="cat-name">Taomlar</span>
-            </button>
-            <button class="category-btn" data-category="kebab">
-                <span class="cat-icon">🍢</span>
-                <span class="cat-name">Shashliklar</span>
-            </button>
-            <button class="category-btn" data-category="extras">
-                <span class="cat-icon">🫓</span>
-                <span class="cat-name">Qo'shimcha</span>
-            </button>
-            <button class="category-btn" data-category="drinks">
-                <span class="cat-icon">🥤</span>
-                <span class="cat-name">Ichimliklar</span>
-            </button>
+        <div class="category-scroll" id="categoryScroll">
+            <!-- Filled by JS -->
         </div>
     </nav>
 
     <!-- Menu Content -->
-    <main class="menu-content" id="menuContent">
-        <!-- Populated by JavaScript -->
-    </main>
-
-    <!-- Cart Button -->
-    <div class="cart-fab" id="cartFab" style="display:none;">
-        <span class="cart-icon">🛒</span>
-        <span class="cart-count" id="cartCount">0</span>
-        <span class="cart-total" id="cartTotal">0 so'm</span>
-    </div>
-
-    <!-- Cart Modal -->
-    <div class="modal-overlay" id="cartModal">
-        <div class="modal-content cart-modal">
-            <div class="modal-header">
-                <h2>Buyurtma</h2>
-                <button class="modal-close" id="cartClose">✕</button>
-            </div>
-            <div class="cart-items" id="cartItems">
-                <!-- Populated by JavaScript -->
-            </div>
-            <div class="cart-footer">
-                <div class="cart-summary">
-                    <div class="summary-row">
-                        <span>Jami:</span>
-                        <span class="total-price" id="totalPrice">0 so'm</span>
-                    </div>
-                </div>
-                <button class="order-btn" id="orderBtn">
-                    <span>📱</span> Buyurtma berish
-                </button>
-                <p class="order-note">Buyurtma Telegram orqali yuboriladi</p>
-            </div>
-        </div>
-    </div>
+    <main class="menu-content" id="menuContent"></main>
 
     <!-- Item Detail Modal -->
     <div class="modal-overlay" id="itemModal">
         <div class="modal-content item-modal">
-            <button class="modal-close item-modal-close" id="itemClose">✕</button>
+            <button class="modal-close" id="itemClose">✕</button>
             <div class="item-modal-img" id="itemModalImg"></div>
             <div class="item-modal-body">
                 <div class="item-modal-badge" id="itemModalBadge"></div>
                 <h2 class="item-modal-name" id="itemModalName"></h2>
                 <p class="item-modal-desc" id="itemModalDesc"></p>
                 <div class="item-modal-details">
-                    <div class="detail-chip" id="itemModalWeight">
-                        <span>⚖️</span> <span id="itemWeightVal"></span>
-                    </div>
-                    <div class="detail-chip" id="itemModalTime">
-                        <span>⏱️</span> <span id="itemTimeVal"></span>
-                    </div>
-                    <div class="detail-chip" id="itemModalCalorie">
-                        <span>⚡</span> <span id="itemCalorieVal"></span>
-                    </div>
+                    <div class="detail-chip"><span>⚖️</span> <span id="itemWeightVal"></span></div>
+                    <div class="detail-chip"><span>⏱️</span> <span id="itemTimeVal"></span></div>
+                    <div class="detail-chip"><span>⚡</span> <span id="itemCalorieVal"></span></div>
                 </div>
-                <div class="item-modal-footer">
-                    <div class="item-modal-price" id="itemModalPrice"></div>
-                    <div class="quantity-control">
-                        <button class="qty-btn" id="qtyMinus">−</button>
-                        <span class="qty-value" id="qtyValue">1</span>
-                        <button class="qty-btn" id="qtyPlus">+</button>
-                    </div>
-                </div>
-                <button class="add-to-cart-btn" id="addToCartBtn">
-                    Savatga qo'shish
-                </button>
+                <div class="item-modal-price" id="itemModalPrice"></div>
+                <a class="order-btn" id="orderBtn" href="#" target="_blank">
+                    <span>📱</span> <span id="orderBtnText">Buyurtma berish</span>
+                </a>
             </div>
         </div>
-    </div>
-
-    <!-- Menu Note -->
-    <div class="menu-note">
-        <p>* Narxlar o'zgarishi mumkin</p>
     </div>
 
     <!-- Footer -->
@@ -185,14 +130,12 @@
             <div class="footer-social">
                 <a href="#" class="social-link" aria-label="Instagram">📷</a>
                 <a href="#" class="social-link" aria-label="Telegram">✈️</a>
-                <a href="#" class="social-link" aria-label="Facebook">📘</a>
             </div>
-            <p class="footer-copy">© 2026 Shirin Kafe. Barcha huquqlar himoyalangan.</p>
+            <p class="footer-copy" id="footerCopy">© 2026 Shirin Kafe</p>
         </div>
     </footer>
 
-    <!-- Back to Top -->
-    <button class="back-to-top" id="backToTop" aria-label="Yuqoriga">↑</button>
+    <button class="back-to-top" id="backToTop" aria-label="↑">↑</button>
 
     <script src="js/menu-data.js"></script>
     <script src="js/app.js"></script>
