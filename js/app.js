@@ -439,7 +439,7 @@
     function sendOrder() {
         if (state.cart.length === 0) return;
 
-        let message = "🍽 *Yangi buyurtma - Oasis Restaurant*\n\n";
+        let message = "🍽 *Yangi buyurtma - Shirin Kafe*\n\n";
 
         state.cart.forEach((c, i) => {
             message += `${i + 1}. ${c.item.emoji} ${c.item.name} x${c.qty} — ${formatPrice(c.item.price * c.qty)}\n`;
