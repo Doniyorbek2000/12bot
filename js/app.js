@@ -281,6 +281,13 @@
         });
     }
 
+    function getItemImageHTML(item, cssClass) {
+        if (item.image) {
+            return `<img src="${item.image}" alt="" class="${cssClass}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="${cssClass}-emoji" style="display:none">${item.emoji}</span>`;
+        }
+        return `<span class="${cssClass}-emoji">${item.emoji}</span>`;
+    }
+
     function renderCard(item, index, layout, fontSize) {
         const name = getItemName(item);
         const price = formatPrice(item.price);
@@ -290,7 +297,7 @@
 
         if (layout === "grid-1") {
             return `<div class="menu-card card-list" data-id="${item.id}" style="animation-delay:${delay}s">
-                <div class="card-img-wrap">${getBadgeHTML(item.badge)}<div class="card-emoji">${item.emoji}</div></div>
+                <div class="card-img-wrap">${getBadgeHTML(item.badge)}${getItemImageHTML(item, "card-img")}</div>
                 <div class="card-body">
                     <div class="card-name" style="font-size:${nameSize}">${name}</div>
                 </div>
@@ -303,7 +310,7 @@
 
         return `<div class="menu-card card-tile" data-id="${item.id}" style="animation-delay:${delay}s">
             ${getBadgeHTML(item.badge)}
-            <div class="card-emoji-tile">${item.emoji}</div>
+            <div class="card-img-tile-wrap">${getItemImageHTML(item, "card-img-tile")}</div>
             <div class="card-name" style="font-size:${tileFontName}">${name}</div>
             <div class="card-price" style="font-size:${tileFontPrice}">${price}</div>
         </div>`;
@@ -314,7 +321,11 @@
         const item = MENU_DATA.find((i) => i.id === id);
         if (!item) return;
 
-        itemModalImg.innerHTML = `<span style="font-size:80px">${item.emoji}</span>`;
+        if (item.image) {
+            itemModalImg.innerHTML = `<img src="${item.image}" alt="" class="modal-food-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="modal-food-emoji" style="display:none;font-size:80px">${item.emoji}</span>`;
+        } else {
+            itemModalImg.innerHTML = `<span class="modal-food-emoji" style="font-size:80px">${item.emoji}</span>`;
+        }
         if (item.badge) {
             itemModalBadge.innerHTML = getBadgeHTML(item.badge);
             itemModalBadge.style.display = "";
